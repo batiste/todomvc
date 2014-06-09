@@ -437,7 +437,7 @@ Binding.prototype.bindEvents = function() {
   var i;
   this.dom.addEventListener("keyup", function(e){ this.dataEvent(e); }.bind(this), false);
   this.dom.addEventListener("change", function(e){ this.dataEvent(e); }.bind(this), false);
-  var events = "click,dblclick,change,mouseover,focus,keydown,keyup,keypress,submit,blur".split(',');
+  var events = "click,dbclick,change,mouseover,focus,keydown,keyup,keypress,submit,blur".split(',');
   for(i=0; i<events.length; i++) {
     this.dom.addEventListener(
       events[i],

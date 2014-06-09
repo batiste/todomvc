@@ -18,19 +18,19 @@ header id="header"
 	input id="new-todo" placeholder="What needs to be done?" autofocus="" value={{ newItem }} lk-keydown={{ add(event) }}
 
 section id="main"
-	input id="toggle-all" type="checkbox" lk-change="toggleAll(event)"
+	input id="toggle-all" type="checkbox" lk-change={{ toggleAll(event) }} checked={{ 'checked' if itemsLeft() == 0 }}
 	label for="toggle-all"
 		"Mark all as complete"
 	ul id="todo-list"
 		for index, item in items
 			if isVisible(item)
-				li class={{ 'completed' if item.complete }}
+				li class={{ itemClass(item) }}
 					div class="view"
 						input class="toggle" type="checkbox" checked={{ 'checked' if item.complete }} lk-change={{ switch(item) }}
-						label
+						label lk-click={{ edit(item, index) }}
 							{{ item.text }}
 						button class="destroy" lk-click={{ destroy(index) }}
-					input class="edit" value={{ item.text }}
+					input class="edit" id="edit-{{ index }}" value={{ item.text }} lk-keydown={{ editKeydown(event) }} autofocus=""
 
 footer id="footer"
 	span id="todo-count"
@@ -63,6 +63,7 @@ var tpl = likely.Template(tplStr);
 var data = {
 	newItem:'',
 	filter: 'all',
+	editItem: null,
 	add:function(event){
 		if(event.which === 13 && data.newItem) {
 			data.items.push({text:data.newItem, complete:false});
@@ -74,13 +75,34 @@ var data = {
 		data.items.splice(index, 1);
 		binding.update();
 	},
+	edit: function(item, index) {
+		data.editItem = item;
+		binding.update();
+		document.getElementById('edit-'+index).focus();
+	},
+	editKeydown: function(event) {
+		if(event.which === 13 || event.which === 27) {
+			data.editItem = null;
+			binding.update();
+		}
+	},
 	switch: function(item) {
 		item.complete = !item.complete;
 		binding.update();
 	},
+	itemClass: function(item) {
+		var cls = [];
+		if (item.complete) {
+			cls.push('complete');
+		}
+		if (data.editItem === item) {
+			cls.push('editing');
+		}
+		return cls.join(' ');
+	},
 	toggleAll: function(event) {
 		var target = event.target;
-		console.log(target, target.value);
+		data.items.map(function(el){ el.complete = target.checked; });
 		binding.update();
 	},
 	setFilter: function(value) {
