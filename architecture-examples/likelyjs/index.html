@@ -7,8 +7,6 @@
 	</head>
 	<body>
 
-
-
 <section id="todoapp"></section>
 
 <script id="tpl" type="text/template">
@@ -26,11 +24,11 @@ section id="main"
 			if isVisible(item)
 				li class={{ itemClass(item) }}
 					div class="view"
-						input class="toggle" type="checkbox" checked={{ 'checked' if item.complete }} lk-change={{ switch(item) }}
+						input class="toggle" type="checkbox" checked={{ 'checked' if item.complete }} lk-change={{ switchState(item) }}
 						label lk-click={{ edit(item, index) }}
 							{{ item.text }}
 						button class="destroy" lk-click={{ destroy(index) }}
-					input class="edit" id="edit-{{ index }}" value={{ item.text }} lk-keydown={{ editKeydown(event) }} autofocus=""
+					input class="edit" id="edit-{{ index }}" value={{ item.text }} lk-keydown={{ editKeydown(event, item,index) }} autofocus=""
 
 footer id="footer"
 	span id="todo-count"
@@ -48,95 +46,12 @@ footer id="footer"
 			a class={{ 'selected' if filter == 'complete' }} href="#/completed" lk-click={{ setFilter("complete") }}
 				"Completed"
 	if itemsCompleted()
-		button id="clear-completed" lk-click={{ clear() }}
+		button id="clear-completed" lk-click={{ clearCompleted() }}
 			"Clear completed {{ itemsCompleted() }}"
 </script>
 
-<script src="likely.js"></script>
-<script>
-'use strict';
-
-var container = document.getElementById('todoapp');
-var tplStr = document.getElementById('tpl').innerHTML;
-var tpl = likely.Template(tplStr);
-
-var data = {
-	newItem:'',
-	filter: 'all',
-	editItem: null,
-	add:function(event){
-		if(event.which === 13 && data.newItem) {
-			data.items.push({text:data.newItem, complete:false});
-			data.newItem = '';
-			binding.update();
-		}
-	},
-	destroy: function(index){
-		data.items.splice(index, 1);
-		binding.update();
-	},
-	edit: function(item, index) {
-		data.editItem = item;
-		binding.update();
-		document.getElementById('edit-'+index).focus();
-	},
-	editKeydown: function(event) {
-		if(event.which === 13 || event.which === 27) {
-			data.editItem = null;
-			binding.update();
-		}
-	},
-	switch: function(item) {
-		item.complete = !item.complete;
-		binding.update();
-	},
-	itemClass: function(item) {
-		var cls = [];
-		if (item.complete) {
-			cls.push('complete');
-		}
-		if (data.editItem === item) {
-			cls.push('editing');
-		}
-		return cls.join(' ');
-	},
-	toggleAll: function(event) {
-		var target = event.target;
-		data.items.map(function(el){ el.complete = target.checked; });
-		binding.update();
-	},
-	setFilter: function(value) {
-		data.filter = value;
-		binding.update();
-	},
-	isVisible: function(item) {
-		if(data.filter === 'all') {
-			return true;
-		}
-		if(data.filter === 'complete' && item.complete) {
-			return true;
-		}
-		if(data.filter === 'active' && !item.complete) {
-			return true;
-		}
-		return false;
-	},
-	itemsLeft: function() {
-		return data.items.filter(function(e){return !e.complete;}).length;
-	},
-	itemsCompleted: function() {
-		return data.items.filter(function(e){return e.complete;}).length;
-	},
-	clear: function() {
-		data.items = data.items.filter(function(e){return !e.complete;});
-		binding.update();
-	},
-	items: []
-};
-var binding = likely.Binding(container, tpl, data);
-binding.init();
-
-</script>
+<script src="js/likely.js"></script>
+<script src="js/app.js"></script>
 
 </body>
 </html>
