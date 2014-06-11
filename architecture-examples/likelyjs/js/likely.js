@@ -395,6 +395,13 @@ Binding.prototype.diff = function() {
   this.lock = false;
 };
 
+Binding.prototype.trigger = function(name, obj) {
+  this.dom.dispatchEvent(
+    util.event(name),
+    obj
+  );
+};
+
 Binding.prototype.dataEvent = function(e) {
   var dom = e.target;
   var name = dom.getAttribute('lk-bind');
@@ -405,10 +412,7 @@ Binding.prototype.dataEvent = function(e) {
       this.lock = true;
       this.diff();
     }
-    this.dom.dispatchEvent(
-      util.event('dataViewChanged'),
-      {"name": name}
-    );
+    this.trigger('dataViewChanged', {"name": name});
   }
 };
 
@@ -445,12 +449,13 @@ Binding.prototype.bindEvents = function() {
   }
 };
 
-Binding.prototype.update = function(){
+Binding.prototype.update = function() {
   // avoid 2 diffs at the same time
   // TODO: message or diff queue.
   if(!this.lock) {
     this.lock = true;
     this.diff();
+    this.trigger('update');
   }
 };
 
